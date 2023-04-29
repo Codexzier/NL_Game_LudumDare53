@@ -14,12 +14,13 @@ public class Menu : MonoBehaviour
 
     public void OnStartGame()
     {
-        SceneManager.LoadScene("Scenes/GameContentScene");
+        SceneManager.LoadScene("Scenes/GameScene");
         Time.timeScale = 1f;
     }
 
     public void OnExitGame()
     {
+        Debug.Log("Beenden");
         Application.Quit();
     }
 

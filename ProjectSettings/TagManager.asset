@@ -41,3 +41,21 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Water
+    uniqueID: 3552641683
+    locked: 0
+  - name: Island_Sand
+    uniqueID: 2975011121
+    locked: 0
+  - name: Island_Green
+    uniqueID: 4097168117
+    locked: 0
+  - name: Island_Details
+    uniqueID: 4119890165
+    locked: 0
+  - name: Player
+    uniqueID: 1712685013
+    locked: 0
+  - name: Utilities
+    uniqueID: 3935880753
+    locked: 0
