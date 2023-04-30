@@ -44,6 +44,9 @@ TagManager:
   - name: Water
     uniqueID: 3552641683
     locked: 0
+  - name: SchallowWater
+    uniqueID: 718493327
+    locked: 0
   - name: Island_Sand
     uniqueID: 2975011121
     locked: 0

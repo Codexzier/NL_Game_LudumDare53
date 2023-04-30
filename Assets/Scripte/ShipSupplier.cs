@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ShipSupplier : MonoBehaviour
@@ -10,12 +11,63 @@ public class ShipSupplier : MonoBehaviour
     public float speedByScreenSize { get; set; } = 1f;
     private static readonly float pixelFrac = 1f / 32f;
     
+    public PizzaItem[] orders;
+    
     /// <summary>
     /// Animation vom schiff
     /// </summary>
     private Animator anim;
-    
-    
+
+    private void Update()
+    {
+        var found = this._boxCollider2D.OverlapCollider(this._triggerContactFilter2D, this._collider2Ds);
+        for (var i = 0; i < found; i++)
+        {
+            Debug.Log($"Pizza supplier or customer: {i}");
+            
+            var foundCollider = this._collider2Ds[i];
+            if (!foundCollider.isTrigger)
+            {
+                continue;
+            }
+
+            Debug.Log("objekt gefunden");
+                
+            foreach (var landingStage in foundCollider.GetComponents<ReachableLandingStage>())
+            {
+                switch (landingStage)
+                {
+                    case PizzaDelivery pizzaDelivery:
+                    {
+                        var prepare = pizzaDelivery.GetOrders();
+                        foreach (var pizzaItem in this.PizzaItems)
+                        {
+                            if(!prepare.Any()) break;
+
+                            if (pizzaItem.PizzaOrder != PizzaOrders.None) continue;
+                            
+                            var getFirstPrepare = prepare.First();
+                            pizzaItem.PizzaOrder = getFirstPrepare.PizzaOrder;
+                            pizzaItem.Show();
+                        }
+                        break;
+                    }
+                    case LandingStage landing:
+                    {
+                        var nextPizza = this.orders.FirstOrDefault(f => f.PizzaOrder != PizzaOrders.None);
+                        if (nextPizza == null)
+                        {
+                            continue;
+                        }
+                        
+                        landing.DeliverPizza(nextPizza.PizzaOrder);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private void LateUpdate()
     {
         if(this.change == null) return;

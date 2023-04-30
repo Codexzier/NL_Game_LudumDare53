@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class LandingStage : MonoBehaviour
+public class LandingStage : ReachableLandingStage
 {
-    public PizzaItem[] PizzaItems;
+    public PizzaItem Item;
 
     private bool hasOrder;
     
@@ -24,12 +24,9 @@ public class LandingStage : MonoBehaviour
     public PizzaOrderIcon PizzaOrderIcon { get; set; }
     public DeliveryOutOfTimeIcon deliveryOutOfTimeIcon { get; set; }
 
-    void Start()
+    public void Start()
     {
-        foreach (var item in this.PizzaItems)
-        {
-            item.Hide();
-        }
+        this.Item.Hide();
 
         if (this.PizzaOrderIcon == null) throw new NullReferenceException("Pizza Order Icon muss zugewiesen werden!");
     }
@@ -63,9 +60,10 @@ public class LandingStage : MonoBehaviour
         
         this.PizzaOrderIcon.Show();
 
-        this.PizzaItems
-            .First(order => order.PizzaOrder == this.LandingStagePlace.NeedPizzaOrder)
-            .Show();
+        if(this.Item.PizzaOrder == this.LandingStagePlace.NeedPizzaOrder)
+        {
+          this.Item.Show();
+        }
         
         this.LandingStagePlace.NeedPizzaOrder = pizzaOrder;
         
@@ -94,10 +92,7 @@ public class LandingStage : MonoBehaviour
         this.deliveryOutOfTimeIcon.Hide();
         this.PizzaOrderIcon.Hide();
         
-        foreach (var item in this.PizzaItems)
-        {
-            item.Hide();
-        }
+       this.Item.Hide();
 
         this.countdownForNextOrder = 0f;
         
@@ -105,4 +100,11 @@ public class LandingStage : MonoBehaviour
         this.countdownForNextOrderMin -= 0.1f;
     }
 
+    public void DeliverPizza(PizzaOrders order)
+    {
+        // no order exist
+        if(!this.LandingStagePlace.HasOrdered) return;
+        
+        this.LandingStagePlace.OnDelivery(order);
+    }
 }

@@ -1,18 +1,44 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class PizzaDelivery : MonoBehaviour
+public class PizzaDelivery : ReachableLandingStage
 {
-    // Start is called before the first frame update
-    void Start()
+    public PizzaItem[] orders;
+
+    private void Start()
     {
+        if (this.orders == null) throw new NullReferenceException("Pizza Items nicht zu gewiesen!");
+        
+        foreach (var pizzaItem in this.orders)
+        {
+            pizzaItem.Hide();
+        }
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void AddOrder(PizzaOrders toOrderPizza)
     {
-        
+        foreach (var pizzaItem in this.orders)
+        {
+            if (pizzaItem.PizzaOrder != PizzaOrders.None) continue;
+            
+            pizzaItem.PizzaOrder = toOrderPizza;
+            pizzaItem.Show();
+            break;
+        }
+    }
+
+    public PizzaItem[] GetOrders()
+    {
+        var prepare = new List<PizzaItem>();
+
+        foreach (var pizzaItem in this.orders)
+        {
+            if(pizzaItem.PizzaOrder == PizzaOrders.None) break;
+            
+            prepare.Add(new PizzaItem { PizzaOrder = pizzaItem.PizzaOrder});
+        }
+
+        return prepare.ToArray();
     }
 }
