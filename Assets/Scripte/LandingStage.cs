@@ -107,6 +107,9 @@ public class LandingStage : ReachableLandingStage
         
         this.countdownForNextOrder = 0f;
         
+        // the waiting time go shorter
+        this.orderTimeStatusSpeed += .3f;
+        
         if(this.countdownForNextOrderMin < 0.5f) return;
         this.countdownForNextOrderMin -= 0.1f;
     }

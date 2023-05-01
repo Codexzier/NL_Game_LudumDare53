@@ -21,6 +21,6 @@ public class HeadUpDisplay : MonoBehaviour
     public void SetScore(int score, int notInTime)
     {
         this.pointStatus.text = $"Points: {score}";
-        this.notInTime.text = $"Not in time: {notInTime}";
+        this.notInTime.text = $"Not in time: {notInTime} / 10";
     }
 }
