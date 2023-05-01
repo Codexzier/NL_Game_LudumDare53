@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using UnityEngine;
 
@@ -24,7 +23,6 @@ public class ShipSupplier : MonoBehaviour
         var found = this._boxCollider2D.OverlapCollider(this._triggerContactFilter2D, this._collider2Ds);
         if (found == 0)
         {
-            //Debug.Log("Landing Stages zurück setzen, für kann wieder beliefiert werden.");
             foreach (var item in this.Customers.LandingStageItems)
             {
                 item.DeliverStatus = DeliverStatus.Delivered;
@@ -34,36 +32,27 @@ public class ShipSupplier : MonoBehaviour
         
         for (var i = 0; i < found; i++)
         {
-            //Debug.Log($"Pizza supplier or customer: {i}");
-            
             var foundCollider = this._collider2Ds[i];
             if (!foundCollider.isTrigger)
             {
                 continue;
             }
 
-            //Debug.Log("objekt gefunden");
-                
             foreach (var landingStage in foundCollider.GetComponents<ReachableLandingStage>())
             {
                 switch (landingStage)
                 {
                     case PizzaDelivery pizzaDelivery:
                     {
-                        //Debug.Log("Pizza Delivery");
                         var prepare = pizzaDelivery.GetOrders();
-                        //Debug.Log($"Pizza Delivery -  Order {prepare.Count}");
+                        
                         for (int j = 0; j < this.pizzaItems.Length; j++)
                         {
                             if(!prepare.Any()) break;
-
                             if (this.pizzaItems[j].ActualPizza() != PizzaOrders.None) continue;
                             
-                            
                             var getFirstPrepare = prepare.First(f => f.Props.PizzaOrder != PizzaOrders.None);
-                            //Debug.Log($"Get Order: {getFirstPrepare.Props.PizzaOrder}, ID:{getFirstPrepare.Props.PizzaId}");
                             this.pizzaItems[j].SetPizzaOrder(getFirstPrepare.Props);
-                            //Debug.Log($"Show HUD Pizza Item: {this.pizzaItems[j].name} ");
                             this.pizzaItems[j].Show();
                             prepare.Remove(getFirstPrepare);
                         }
@@ -77,13 +66,10 @@ public class ShipSupplier : MonoBehaviour
                         
                         landing.DeliverStatus = DeliverStatus.Delivering;
                         
-                        //Debug.Log("Customer");
                         for (int j = 0; j < this.pizzaItems.Length; j++)
                         {
-                            //Debug.Log($"Actual Pizza Order{this.pizzaItems[j].Props.PizzaOrder}");
                             if(this.pizzaItems[j].Props.PizzaOrder == PizzaOrders.None) continue;
                             
-                            //Debug.Log($"Pizza ausliefern an {landing.name}, Pizza: {this.pizzaItems[j].Props.PizzaOrder}, {this.pizzaItems[j].Props.PizzaId}");
                             landing.DeliverPizza(this.pizzaItems[j].Props);
                             this.pizzaItems[j].SetOrderNothing();
                             this.pizzaItems[j].Hide();
@@ -112,15 +98,12 @@ public class ShipSupplier : MonoBehaviour
         var oldPosition = this.transform.position;
         var setSpeed = this.change * step * this.speed * this.speedByScreenSize;
         
-        //Debug.Log($"{setSpeed}");
         this.transform.position += setSpeed;
         if (this.isColliding())
         {
-            //Debug.Log($"collide: {DateTime.Now}, Count: {this._countColliders}, Change: {this.change}, old:{oldPosition}, new: {this.transform.position}");
             this.transform.position = oldPosition;
         }
         
-        //Debug.Log("Change to zero");
         this.change = Vector3.zero;
     }
 
@@ -128,7 +111,6 @@ public class ShipSupplier : MonoBehaviour
     {
         foreach (var item in this.pizzaItems)
         {
-            //Debug.Log($"Hide HUD Pizza Item: {item.name}");
             item.Hide();
         }
     }

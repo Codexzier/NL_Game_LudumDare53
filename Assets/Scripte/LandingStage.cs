@@ -37,7 +37,6 @@ public class LandingStage : ReachableLandingStage
         this.ProgressBar.SetValue(0f);
     }
 
-    // Update is called once per frame
     void Update()
     {
         var step = Time.deltaTime * this.stepTime;
@@ -66,38 +65,30 @@ public class LandingStage : ReachableLandingStage
 
     public void StartOrder(PizzaProps pp)
     {
-        //if(this.countdownForNextOrder < this.countdownForNextOrderMin) return;
-        
-        //Debug.Log($"Start Order set pizza Item {pp.PizzaOrder}");
         this.Item.SetPizzaOrder(pp);
         this.Item.Show();
 
         this.HasOrdered = true;
         this.orderTimeStatus = 0;
-        //this.DeliverStatus = DeliverStatus.CanBeDelivered;
     }
 
     public void DeliverPizza(PizzaProps order)
     {
-        //Debug.Log($"Deliver pizza: {order.PizzaOrder}, HasOrdered: {this.HasOrdered}");
         // no order exist
         if(!this.HasOrdered) return;
         if (order.PizzaOrder == PizzaOrders.None) return;
         
         this._points = 2;
         if (order.PizzaOrder == this.Item.ActualPizza()) this._points = 3;
-        //Debug.Log($"Get points for deliver pizza: {this._points}");
         
         // ein Punkt Abzug wenn außerhalb der Zeit
         if (this.countdownForNextOrder > 1f)
         {
             this._points--;
-            //this.countDeliverdOutofTime++;
         }
         
         this.pointsForPizzaDelivered += this._points;
         this.HasOrdered = false;
-        //this.DeliverStatus = DeliverStatus.Delivered;
         
         this.Item.SetOrderNothing();
         this.Item.Hide();

@@ -45,18 +45,12 @@ public class PizzaItem : HideableObjectItem
         {
             var val = func.Invoke(pp.PizzaOrder);
             Debug.Log($"Anim Value: {val}");
-            if(val < 0f)
-            {
-                
-                continue;
-            }
+            if(val < 0f) continue;
             
             if(this.anim != null) this.anim.SetFloat("PizzaOrderValue", val);
 
             if (this.Icon != null)
             {
-                //Debug.Log($"Set for map sprite {pp.PizzaOrder}");
-              
                 switch (pp.PizzaOrder)
                 {
                     case PizzaOrders.Hawei:  this.Icon.sprite = this.spriteHawei; Debug.Log("- H"); break;

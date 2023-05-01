@@ -54,36 +54,23 @@ public class LandingStages : MonoBehaviour
             return;
         }
         
-        //if(this._orders)
-        
         // little more random 
         var r = this._random.Next(0, 100);
         if (r < 90) return;
 
-        
-        //if(this.LandingStageItems.All(a => a.Item.ActualPizza() != PizzaOrders.None)) return;
-        //Debug.Log($"New order come in! {this.LandingStageItems.Length}");
         if(this.PizzaDelivery.OrderListIsFull()) return;
         
         // check the customers an open order
         var index = this._random.Next(0, this.LandingStageItems.Length);
         if(this.LandingStageItems[index].Item.ActualPizza() != PizzaOrders.None) return;
-        
-       // if(this.LandingStageItems[index].DeliverStatus == DeliverStatus.Delivering) return;
-        
-        //if(this.LandingStageItems[index].countdownForNextOrder < this.LandingStageItems[index].countdownForNextOrderMin) return;
-        
-        //Debug.Log($"Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
 
         var orderIndex = this._random.Next(0, this._orderMenu.Length);
         this.pizzaId++;
         PizzaProps pp = new PizzaProps(this._orderMenu[orderIndex], this.pizzaId);
         
         this.LandingStageItems[index].StartOrder(pp);
-        //Debug.Log($"Check Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
         
         this.PizzaDelivery.AddOrder(pp);
-        //Debug.Log($"An customer order: {pp.PizzaOrder}, ID {pp.PizzaId}");
     }
 
     private void SetGameOver()
