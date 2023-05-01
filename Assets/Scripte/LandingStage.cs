@@ -9,6 +9,7 @@ public class LandingStage : ReachableLandingStage
     public float countdownForNextOrderMin = 3f;
     public float countdownForNextOrder;
     public float orderTimeStatus;
+    public float orderTimeStatusSpeed = 1f;
     public float orderTimeStatusMax = 1f;
 
     public int pointsForPizzaDelivered = 0;
@@ -16,10 +17,14 @@ public class LandingStage : ReachableLandingStage
     public int countDeliverdOutofTime;
 
     public DeliveryOutOfTimeIcon deliveryOutOfTimeIcon;
+
+    public ProgressBar ProgressBar;
     
     public bool HasOrdered { get; set; }
 
     private int _points;
+    
+    public DeliverStatus DeliverStatus = DeliverStatus.Delivered;
 
     public void Start()
     {
@@ -28,66 +33,77 @@ public class LandingStage : ReachableLandingStage
         
         this.Item.Hide();
         this.deliveryOutOfTimeIcon.Hide();
+        
+        this.ProgressBar.SetValue(0f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(this.HasOrdered) return;
-
         var step = Time.deltaTime * this.stepTime;
+        
+        if (this.HasOrdered)
+        {
+            this.orderTimeStatus += step * this.orderTimeStatusSpeed;
+            this.ProgressBar.SetValue(this.orderTimeStatus);
+            if (this.orderTimeStatus < this.orderTimeStatusMax) return;
+
+            if(this.deliveryOutOfTimeIcon.ToLate) return;
+            
+            this.countDeliverdOutofTime++;
+
+            this.deliveryOutOfTimeIcon.ToLate = true;
+            this.deliveryOutOfTimeIcon.Show();
+            return;
+        }
+
         this.countdownForNextOrder += step;
         
         if (this.Item.ActualPizza() == PizzaOrders.None) return;
-
-        // TODO: Warum wird hier zurück gesetzt
+        
         this.countdownForNextOrder = 0f;
-
-        this.orderTimeStatus += step;
-        if (this.orderTimeStatus < orderTimeStatusMax) return;
-
-        this.deliveryOutOfTimeIcon.Show();
     }
 
     public void StartOrder(PizzaProps pp)
     {
         //if(this.countdownForNextOrder < this.countdownForNextOrderMin) return;
         
-        Debug.Log($"Start Order set pizza Item {pp.PizzaOrder}");
+        //Debug.Log($"Start Order set pizza Item {pp.PizzaOrder}");
         this.Item.SetPizzaOrder(pp);
         this.Item.Show();
 
         this.HasOrdered = true;
-        
         this.orderTimeStatus = 0;
+        //this.DeliverStatus = DeliverStatus.CanBeDelivered;
     }
-
- 
 
     public void DeliverPizza(PizzaProps order)
     {
-        Debug.Log($"Deliver pizza: {order.PizzaOrder}, HasOrdered: {this.HasOrdered}");
+        //Debug.Log($"Deliver pizza: {order.PizzaOrder}, HasOrdered: {this.HasOrdered}");
         // no order exist
         if(!this.HasOrdered) return;
         if (order.PizzaOrder == PizzaOrders.None) return;
         
         this._points = 2;
         if (order.PizzaOrder == this.Item.ActualPizza()) this._points = 3;
-        Debug.Log($"Get points for deliver pizza: {this._points}");
+        //Debug.Log($"Get points for deliver pizza: {this._points}");
         
         // ein Punkt Abzug wenn außerhalb der Zeit
         if (this.countdownForNextOrder > 1f)
         {
             this._points--;
-            this.countDeliverdOutofTime++;
+            //this.countDeliverdOutofTime++;
         }
         
         this.pointsForPizzaDelivered += this._points;
         this.HasOrdered = false;
+        //this.DeliverStatus = DeliverStatus.Delivered;
         
         this.Item.SetOrderNothing();
         this.Item.Hide();
+        this.deliveryOutOfTimeIcon.ToLate = false;
         this.deliveryOutOfTimeIcon.Hide();
+        this.ProgressBar.SetValue(0f);
         
         this.countdownForNextOrder = 0f;
         

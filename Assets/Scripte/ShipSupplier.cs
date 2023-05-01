@@ -5,12 +5,14 @@ using UnityEngine;
 public class ShipSupplier : MonoBehaviour
 {
     public Vector3 change;
-    public float speed = 1f;
+    public float speed = 20.0f;
     public float speedByScreenSize { get; set; } = 1f;
     private static readonly float pixelFrac = 1f / 32f;
     
     private ContactFilter2D _triggerContactFilter2D;
     public PizzaItem[] pizzaItems;
+
+    public LandingStages Customers;
     
     /// <summary>
     /// Animation vom schiff
@@ -20,6 +22,16 @@ public class ShipSupplier : MonoBehaviour
     private void Update()
     {
         var found = this._boxCollider2D.OverlapCollider(this._triggerContactFilter2D, this._collider2Ds);
+        if (found == 0)
+        {
+            //Debug.Log("Landing Stages zurück setzen, für kann wieder beliefiert werden.");
+            foreach (var item in this.Customers.LandingStageItems)
+            {
+                item.DeliverStatus = DeliverStatus.Delivered;
+            }
+            return;
+        }
+        
         for (var i = 0; i < found; i++)
         {
             //Debug.Log($"Pizza supplier or customer: {i}");
@@ -49,9 +61,9 @@ public class ShipSupplier : MonoBehaviour
                             
                             
                             var getFirstPrepare = prepare.First(f => f.Props.PizzaOrder != PizzaOrders.None);
-                            Debug.Log($"Get Order: {getFirstPrepare.Props.PizzaOrder}, ID:{getFirstPrepare.Props.PizzaId}");
+                            //Debug.Log($"Get Order: {getFirstPrepare.Props.PizzaOrder}, ID:{getFirstPrepare.Props.PizzaId}");
                             this.pizzaItems[j].SetPizzaOrder(getFirstPrepare.Props);
-                            Debug.Log($"Show HUD Pizza Item: {this.pizzaItems[j].name} ");
+                            //Debug.Log($"Show HUD Pizza Item: {this.pizzaItems[j].name} ");
                             this.pizzaItems[j].Show();
                             prepare.Remove(getFirstPrepare);
                         }
@@ -60,16 +72,22 @@ public class ShipSupplier : MonoBehaviour
                     }
                     case LandingStage landing:
                     {
-                        Debug.Log("Customer");
+                        if(!landing.HasOrdered) break;
+                        if(landing.DeliverStatus == DeliverStatus.Delivering) return;
+                        
+                        landing.DeliverStatus = DeliverStatus.Delivering;
+                        
+                        //Debug.Log("Customer");
                         for (int j = 0; j < this.pizzaItems.Length; j++)
                         {
-                            Debug.Log($"Actual Pizza Order{this.pizzaItems[j].Props.PizzaOrder}");
+                            //Debug.Log($"Actual Pizza Order{this.pizzaItems[j].Props.PizzaOrder}");
                             if(this.pizzaItems[j].Props.PizzaOrder == PizzaOrders.None) continue;
                             
-                            Debug.Log($"Pizza ausliefern an {landing.name}, Pizza: {this.pizzaItems[j].Props.PizzaOrder}, {this.pizzaItems[j].Props.PizzaId}");
+                            //Debug.Log($"Pizza ausliefern an {landing.name}, Pizza: {this.pizzaItems[j].Props.PizzaOrder}, {this.pizzaItems[j].Props.PizzaId}");
                             landing.DeliverPizza(this.pizzaItems[j].Props);
                             this.pizzaItems[j].SetOrderNothing();
                             this.pizzaItems[j].Hide();
+                            break;
                         }
                         break;
                     }
@@ -80,8 +98,6 @@ public class ShipSupplier : MonoBehaviour
 
     private void LateUpdate()
     {
-        //if(this.change == null) return;
-        
         this.anim.SetFloat("change_x", this.change.x);
         this.anim.SetFloat("change_y", this.change.y);
         
@@ -94,7 +110,10 @@ public class ShipSupplier : MonoBehaviour
         
         var step = roundToPixelGrid(Time.deltaTime);
         var oldPosition = this.transform.position;
-        this.transform.position += this.change * step * this.speed; // * this.speedByScreenSize;
+        var setSpeed = this.change * step * this.speed * this.speedByScreenSize;
+        
+        //Debug.Log($"{setSpeed}");
+        this.transform.position += setSpeed;
         if (this.isColliding())
         {
             //Debug.Log($"collide: {DateTime.Now}, Count: {this._countColliders}, Change: {this.change}, old:{oldPosition}, new: {this.transform.position}");
@@ -109,7 +128,7 @@ public class ShipSupplier : MonoBehaviour
     {
         foreach (var item in this.pizzaItems)
         {
-            Debug.Log($"Hide HUD Pizza Item: {item.name}");
+            //Debug.Log($"Hide HUD Pizza Item: {item.name}");
             item.Hide();
         }
     }

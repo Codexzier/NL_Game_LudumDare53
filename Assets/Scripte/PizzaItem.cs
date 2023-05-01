@@ -55,7 +55,7 @@ public class PizzaItem : HideableObjectItem
 
             if (this.Icon != null)
             {
-                Debug.Log($"Set for map sprite {pp.PizzaOrder}");
+                //Debug.Log($"Set for map sprite {pp.PizzaOrder}");
               
                 switch (pp.PizzaOrder)
                 {

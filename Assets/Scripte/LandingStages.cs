@@ -12,7 +12,7 @@ public class LandingStages : MonoBehaviour
     public int countMissings = 0;
 
     public GameOverBoard GameOver;
-    
+
     public int Score { get; set; }
 
     private int pizzaId = 0;
@@ -28,6 +28,8 @@ public class LandingStages : MonoBehaviour
                 
             item.countdownForNextOrder = (float) this._random.NextDouble();
         }
+        
+        this.GameOver.NewGame();
     }
 
     private PizzaOrders[] _orderMenu =
@@ -44,7 +46,7 @@ public class LandingStages : MonoBehaviour
         
         this.Score = this.LandingStageItems.Sum(item => item.pointsForPizzaDelivered);
         this.countMissings = this.LandingStageItems.Sum(item => item.countDeliverdOutofTime);
-        this.HUD.SetScore(this.Score);
+        this.HUD.SetScore(this.Score, this.countMissings);
         
         if (this.countMissings >= 10)
         {
@@ -67,27 +69,29 @@ public class LandingStages : MonoBehaviour
         var index = this._random.Next(0, this.LandingStageItems.Length);
         if(this.LandingStageItems[index].Item.ActualPizza() != PizzaOrders.None) return;
         
+       // if(this.LandingStageItems[index].DeliverStatus == DeliverStatus.Delivering) return;
+        
         //if(this.LandingStageItems[index].countdownForNextOrder < this.LandingStageItems[index].countdownForNextOrderMin) return;
         
-        Debug.Log($"Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
+        //Debug.Log($"Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
 
         var orderIndex = this._random.Next(0, this._orderMenu.Length);
         this.pizzaId++;
         PizzaProps pp = new PizzaProps(this._orderMenu[orderIndex], this.pizzaId);
         
         this.LandingStageItems[index].StartOrder(pp);
-        Debug.Log($"Check Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
+        //Debug.Log($"Check Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
         
         this.PizzaDelivery.AddOrder(pp);
-        Debug.Log($"An customer order: {pp.PizzaOrder}, ID {pp.PizzaId}");
+        //Debug.Log($"An customer order: {pp.PizzaOrder}, ID {pp.PizzaId}");
     }
 
     private void SetGameOver()
     {
         Debug.Log("Spielende");
-
-        this.GameOver.Score = this.Score;
-
+        Time.timeScale = 0f;
+        
+        this.GameOver.SetScore(this.Score);
         this.GameOver.Show();
     }
 }

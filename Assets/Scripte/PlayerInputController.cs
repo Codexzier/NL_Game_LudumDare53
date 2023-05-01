@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 public class PlayerInputController : MonoBehaviour
 {
-    [FormerlySerializedAs("Mechanic")] public ShipSupplier ShipSupplier;
+    public ShipSupplier ShipSupplier;
     
     // Update is called once per frame
     void Update()

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public class PizzaDelivery : ReachableLandingStage
 {
@@ -23,7 +22,7 @@ public class PizzaDelivery : ReachableLandingStage
         {
             if (pizzaItem.ActualPizza() != PizzaOrders.None) continue;
             
-            Debug.Log($"Add order to item: {pp.PizzaOrder}");
+            //Debug.Log($"Add order to item: {pp.PizzaOrder}");
             pizzaItem.SetPizzaOrder(new PizzaProps(pp.PizzaOrder, pp.PizzaId));
             pizzaItem.Show();
             break;
