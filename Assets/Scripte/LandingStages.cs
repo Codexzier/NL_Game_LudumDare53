@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class LandingStages : MonoBehaviour
@@ -10,12 +7,15 @@ public class LandingStages : MonoBehaviour
     private readonly System.Random _random = new (DateTime.Now.Second);
     public LandingStage[] LandingStageItems;
     public PizzaDelivery PizzaDelivery;
+    public HeadUpDisplay HUD;
 
     public int countMissings = 0;
 
     public GameOverBoard GameOver;
     
     public int Score { get; set; }
+
+    private int pizzaId = 0;
     
     void Start()
     {
@@ -24,6 +24,8 @@ public class LandingStages : MonoBehaviour
         // set random time to order
         foreach (var item in this.LandingStageItems)
         {
+            if (item == null) throw new NullReferenceException("LandingStage nicht zugewiesen!");
+                
             item.countdownForNextOrder = (float) this._random.NextDouble();
         }
     }
@@ -38,9 +40,12 @@ public class LandingStages : MonoBehaviour
     
     void Update()
     {
+        if (this.LandingStageItems == null) throw new NullReferenceException("LandingStage nicht zugewiesen!");
+        
         this.Score = this.LandingStageItems.Sum(item => item.pointsForPizzaDelivered);
         this.countMissings = this.LandingStageItems.Sum(item => item.countDeliverdOutofTime);
-
+        this.HUD.SetScore(this.Score);
+        
         if (this.countMissings >= 10)
         {
             this.SetGameOver();
@@ -51,17 +56,30 @@ public class LandingStages : MonoBehaviour
         
         // little more random 
         var r = this._random.Next(0, 100);
-        if (r < 80) return;
+        if (r < 90) return;
+
+        
+        //if(this.LandingStageItems.All(a => a.Item.ActualPizza() != PizzaOrders.None)) return;
+        //Debug.Log($"New order come in! {this.LandingStageItems.Length}");
+        if(this.PizzaDelivery.OrderListIsFull()) return;
         
         // check the customers an open order
         var index = this._random.Next(0, this.LandingStageItems.Length);
-        if(this.LandingStageItems[index].Item.PizzaOrder != PizzaOrders.None) return;
+        if(this.LandingStageItems[index].Item.ActualPizza() != PizzaOrders.None) return;
+        
+        Debug.Log($"Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
 
         var orderIndex = this._random.Next(0, this._orderMenu.Length);
 
-        var toOrderPizza = this._orderMenu[orderIndex];
-        this.LandingStageItems[index].StartOrder(toOrderPizza);
-        this.PizzaDelivery.AddOrder(toOrderPizza);
+        
+        this.pizzaId++;
+        PizzaProps pp = new PizzaProps(this._orderMenu[orderIndex], this.pizzaId);
+        
+        this.LandingStageItems[index].StartOrder(pp);
+        Debug.Log($"Check Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
+        
+        this.PizzaDelivery.AddOrder(pp);
+        Debug.Log($"An customer order: {pp.PizzaOrder}, ID {pp.PizzaId}");
     }
 
     private void SetGameOver()

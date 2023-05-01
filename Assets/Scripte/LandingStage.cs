@@ -1,15 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class LandingStage : ReachableLandingStage
 {
     public PizzaItem Item;
-
-    private bool hasOrder;
     
+    private bool hasOrder;
     
     public float stepTime = 0.03f;
     public float countdownForNextOrderMin = 3f;
@@ -18,17 +14,21 @@ public class LandingStage : ReachableLandingStage
     public float orderTimeStatusMax = 1f;
 
     public int pointsForPizzaDelivered;
-    
-    public LandingStagePlace LandingStagePlace;
+
     public int countDeliverdOutofTime;
-    public PizzaOrderIcon PizzaOrderIcon { get; set; }
+    
     public DeliveryOutOfTimeIcon deliveryOutOfTimeIcon { get; set; }
+    
+    public bool HasAnOrder { get; set; }
+    public bool HasOrdered { get; set; }
+
+    private int _points;
 
     public void Start()
     {
+        if (this.Item == null) throw new NullReferenceException("Pizza Order Icon muss zugewiesen werden!");
+        
         this.Item.Hide();
-
-        if (this.PizzaOrderIcon == null) throw new NullReferenceException("Pizza Order Icon muss zugewiesen werden!");
     }
 
     // Update is called once per frame
@@ -39,12 +39,12 @@ public class LandingStage : ReachableLandingStage
         var step = Time.deltaTime * this.stepTime;
         this.countdownForNextOrder += step;
         
-        if (this.LandingStagePlace.NeedPizzaOrder == PizzaOrders.None) return;
+        if (this.Item.ActualPizza() == PizzaOrders.None) return;
 
         // TODO: Warum wird hier zurück gesetzt
         this.countdownForNextOrder = 0f;
 
-        if (this.LandingStagePlace.HasAnOrder) this.HasOrdered();
+        if (this.HasAnOrder) this.CheckHasOrdered();
 
         this.orderTimeStatus += step;
         if (this.orderTimeStatus < orderTimeStatusMax) return;
@@ -52,45 +52,37 @@ public class LandingStage : ReachableLandingStage
         this.deliveryOutOfTimeIcon.Show();
     }
 
-    public void StartOrder(PizzaOrders pizzaOrder)
+    public void StartOrder(PizzaProps pp)
     {
-        if(this.countdownForNextOrder < this.countdownForNextOrderMin) return;
+        //if(this.countdownForNextOrder < this.countdownForNextOrderMin) return;
         
-        this.LandingStagePlace.NeedPizzaOrder = pizzaOrder;
-        
-        this.PizzaOrderIcon.Show();
+        Debug.Log($"Start Order set pizza Item {pp.PizzaOrder}");
+        this.Item.SetPizzaOrder(pp);
+        this.Item.Show();
 
-        if(this.Item.PizzaOrder == this.LandingStagePlace.NeedPizzaOrder)
-        {
-          this.Item.Show();
-        }
-        
-        this.LandingStagePlace.NeedPizzaOrder = pizzaOrder;
         
         this.orderTimeStatus = 0;
     }
 
-    private void HasOrdered()
+    private void CheckHasOrdered()
     {
-        if(!this.LandingStagePlace.HasOrdered) return;
-        
-        var points = this.LandingStagePlace.GetPoints();
+        if(!this.HasOrdered) return;
 
         // ein Punkt Abzug wenn außerhalb der Zeit
         if (this.countdownForNextOrder > 1f)
         {
-            points--;
+            this._points--;
             this.countDeliverdOutofTime++;
         }
 
-        this.pointsForPizzaDelivered += points;
+        this.pointsForPizzaDelivered += this._points;
 
-        this.LandingStagePlace.HasOrdered = false;
-        this.LandingStagePlace.HasAnOrder = false;
-        this.LandingStagePlace.NeedPizzaOrder = PizzaOrders.None;
+        this.HasOrdered = false;
+        this.HasAnOrder = false;
+        this.Item.SetOrderNothing();
         
         this.deliveryOutOfTimeIcon.Hide();
-        this.PizzaOrderIcon.Hide();
+
         
        this.Item.Hide();
 
@@ -103,8 +95,18 @@ public class LandingStage : ReachableLandingStage
     public void DeliverPizza(PizzaOrders order)
     {
         // no order exist
-        if(!this.LandingStagePlace.HasOrdered) return;
+        if(!this.HasOrdered) return;
         
-        this.LandingStagePlace.OnDelivery(order);
+        this.OnDelivery(order);
+    }
+    
+    public bool OnDelivery(PizzaOrders pizzaOrder)
+    {
+        if (pizzaOrder == PizzaOrders.None) return false;
+        
+        this._points = 2;
+        if (pizzaOrder == this.Item.ActualPizza()) this._points = 3;
+        
+        return true;
     }
 }

@@ -7,6 +7,8 @@ public class LandingStagePlace
     public PizzaOrders NeedPizzaOrder { get; set; }
 
     private int points;
+    
+    public int GetPoints() => this.points;
 
     public bool OnDelivery(PizzaOrders pizzaOrder)
     {
@@ -19,5 +21,5 @@ public class LandingStagePlace
     }
 
 
-    public int GetPoints() => this.points;
+   
 }

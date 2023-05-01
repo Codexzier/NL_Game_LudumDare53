@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,7 +9,8 @@ public class ShipSupplier : MonoBehaviour
     public float speedByScreenSize { get; set; } = 1f;
     private static readonly float pixelFrac = 1f / 32f;
     
-    public PizzaItem[] orders;
+    private ContactFilter2D _triggerContactFilter2D;
+    public PizzaItem[] PizzaItems;
     
     /// <summary>
     /// Animation vom schiff
@@ -23,7 +22,7 @@ public class ShipSupplier : MonoBehaviour
         var found = this._boxCollider2D.OverlapCollider(this._triggerContactFilter2D, this._collider2Ds);
         for (var i = 0; i < found; i++)
         {
-            Debug.Log($"Pizza supplier or customer: {i}");
+            //Debug.Log($"Pizza supplier or customer: {i}");
             
             var foundCollider = this._collider2Ds[i];
             if (!foundCollider.isTrigger)
@@ -31,7 +30,7 @@ public class ShipSupplier : MonoBehaviour
                 continue;
             }
 
-            Debug.Log("objekt gefunden");
+            //Debug.Log("objekt gefunden");
                 
             foreach (var landingStage in foundCollider.GetComponents<ReachableLandingStage>())
             {
@@ -39,28 +38,35 @@ public class ShipSupplier : MonoBehaviour
                 {
                     case PizzaDelivery pizzaDelivery:
                     {
+                        Debug.Log("Pizza Delivery");
                         var prepare = pizzaDelivery.GetOrders();
-                        foreach (var pizzaItem in this.PizzaItems)
+                        Debug.Log($"Pizza Delivery -  Order {prepare.Count}");
+                        for (int j = 0; j < this.PizzaItems.Length; j++)
                         {
                             if(!prepare.Any()) break;
 
-                            if (pizzaItem.PizzaOrder != PizzaOrders.None) continue;
+                            if (this.PizzaItems[j].ActualPizza() != PizzaOrders.None) continue;
+                            
+                            
                             
                             var getFirstPrepare = prepare.First();
-                            pizzaItem.PizzaOrder = getFirstPrepare.PizzaOrder;
-                            pizzaItem.Show();
+                            this.PizzaItems[j].SetPizzaOrder(getFirstPrepare.Props);
+                            this.PizzaItems[j].Show();
+                            prepare.Remove(getFirstPrepare);
                         }
+                        
                         break;
                     }
                     case LandingStage landing:
                     {
-                        var nextPizza = this.orders.FirstOrDefault(f => f.PizzaOrder != PizzaOrders.None);
+                        Debug.Log("Customer");
+                        var nextPizza = this.PizzaItems.FirstOrDefault(f => f.ActualPizza() != PizzaOrders.None);
                         if (nextPizza == null)
                         {
                             continue;
                         }
                         
-                        landing.DeliverPizza(nextPizza.PizzaOrder);
+                        landing.DeliverPizza(nextPizza.ActualPizza());
                         break;
                     }
                 }
@@ -70,7 +76,7 @@ public class ShipSupplier : MonoBehaviour
 
     private void LateUpdate()
     {
-        if(this.change == null) return;
+        //if(this.change == null) return;
         
         this.anim.SetFloat("change_x", this.change.x);
         this.anim.SetFloat("change_y", this.change.y);
@@ -87,28 +93,28 @@ public class ShipSupplier : MonoBehaviour
         this.transform.position += this.change * step * this.speed; // * this.speedByScreenSize;
         if (this.isColliding())
         {
-            Debug.Log($"collide: {DateTime.Now}, Count: {this._countColliders}, Change: {this.change}, old:{oldPosition}, new: {this.transform.position}");
+            //Debug.Log($"collide: {DateTime.Now}, Count: {this._countColliders}, Change: {this.change}, old:{oldPosition}, new: {this.transform.position}");
             this.transform.position = oldPosition;
         }
         
-        Debug.Log("Change to zero");
+        //Debug.Log("Change to zero");
         this.change = Vector3.zero;
     }
-    
-    private ContactFilter2D _triggerContactFilter2D;
-    public PizzaItem[] PizzaItems;
-    
+
+    private void Start()
+    {
+        foreach (var item in this.PizzaItems)
+        {
+            item.Hide();
+        }
+    }
+
     private void Awake()
     {
         this._boxCollider2D = this.GetComponent<BoxCollider2D>();
         this._collider2Ds = new Collider2D[10];
         this._obstacleFilter = new ContactFilter2D();
         this.anim = this.GetComponent<Animator>();
-
-        foreach (var item in this.PizzaItems)
-        {
-            item.Hide();
-        }
 
         this._triggerContactFilter2D = new ContactFilter2D
         {
