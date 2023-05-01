@@ -24,7 +24,7 @@ public class PizzaDelivery : ReachableLandingStage
             if (pizzaItem.ActualPizza() != PizzaOrders.None) continue;
             
             Debug.Log($"Add order to item: {pp.PizzaOrder}");
-            pizzaItem.SetPizzaOrder(pp);
+            pizzaItem.SetPizzaOrder(new PizzaProps(pp.PizzaOrder, pp.PizzaId));
             pizzaItem.Show();
             break;
         }
@@ -39,7 +39,7 @@ public class PizzaDelivery : ReachableLandingStage
             if(pizzaItem.ActualPizza() == PizzaOrders.None) break;
 
             var newItem = new PizzaItem();
-            newItem.SetPizzaOrder(pizzaItem.Props);
+            newItem.SetPizzaOrder(new PizzaProps(pizzaItem.Props.PizzaOrder, pizzaItem.Props.PizzaId));
             prepare.Add(newItem);
             
             pizzaItem.SetOrderNothing();

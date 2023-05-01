@@ -67,11 +67,11 @@ public class LandingStages : MonoBehaviour
         var index = this._random.Next(0, this.LandingStageItems.Length);
         if(this.LandingStageItems[index].Item.ActualPizza() != PizzaOrders.None) return;
         
+        //if(this.LandingStageItems[index].countdownForNextOrder < this.LandingStageItems[index].countdownForNextOrderMin) return;
+        
         Debug.Log($"Customer has actual! {this.LandingStageItems[index].Item.ActualPizza() }");
 
         var orderIndex = this._random.Next(0, this._orderMenu.Length);
-
-        
         this.pizzaId++;
         PizzaProps pp = new PizzaProps(this._orderMenu[orderIndex], this.pizzaId);
         

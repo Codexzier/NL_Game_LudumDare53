@@ -10,7 +10,7 @@ public class ShipSupplier : MonoBehaviour
     private static readonly float pixelFrac = 1f / 32f;
     
     private ContactFilter2D _triggerContactFilter2D;
-    public PizzaItem[] PizzaItems;
+    public PizzaItem[] pizzaItems;
     
     /// <summary>
     /// Animation vom schiff
@@ -38,20 +38,21 @@ public class ShipSupplier : MonoBehaviour
                 {
                     case PizzaDelivery pizzaDelivery:
                     {
-                        Debug.Log("Pizza Delivery");
+                        //Debug.Log("Pizza Delivery");
                         var prepare = pizzaDelivery.GetOrders();
-                        Debug.Log($"Pizza Delivery -  Order {prepare.Count}");
-                        for (int j = 0; j < this.PizzaItems.Length; j++)
+                        //Debug.Log($"Pizza Delivery -  Order {prepare.Count}");
+                        for (int j = 0; j < this.pizzaItems.Length; j++)
                         {
                             if(!prepare.Any()) break;
 
-                            if (this.PizzaItems[j].ActualPizza() != PizzaOrders.None) continue;
+                            if (this.pizzaItems[j].ActualPizza() != PizzaOrders.None) continue;
                             
                             
-                            
-                            var getFirstPrepare = prepare.First();
-                            this.PizzaItems[j].SetPizzaOrder(getFirstPrepare.Props);
-                            this.PizzaItems[j].Show();
+                            var getFirstPrepare = prepare.First(f => f.Props.PizzaOrder != PizzaOrders.None);
+                            Debug.Log($"Get Order: {getFirstPrepare.Props.PizzaOrder}, ID:{getFirstPrepare.Props.PizzaId}");
+                            this.pizzaItems[j].SetPizzaOrder(getFirstPrepare.Props);
+                            Debug.Log($"Show HUD Pizza Item: {this.pizzaItems[j].name} ");
+                            this.pizzaItems[j].Show();
                             prepare.Remove(getFirstPrepare);
                         }
                         
@@ -60,13 +61,16 @@ public class ShipSupplier : MonoBehaviour
                     case LandingStage landing:
                     {
                         Debug.Log("Customer");
-                        var nextPizza = this.PizzaItems.FirstOrDefault(f => f.ActualPizza() != PizzaOrders.None);
-                        if (nextPizza == null)
+                        for (int j = 0; j < this.pizzaItems.Length; j++)
                         {
-                            continue;
+                            Debug.Log($"Actual Pizza Order{this.pizzaItems[j].Props.PizzaOrder}");
+                            if(this.pizzaItems[j].Props.PizzaOrder == PizzaOrders.None) continue;
+                            
+                            Debug.Log($"Pizza ausliefern an {landing.name}, Pizza: {this.pizzaItems[j].Props.PizzaOrder}, {this.pizzaItems[j].Props.PizzaId}");
+                            landing.DeliverPizza(this.pizzaItems[j].Props);
+                            this.pizzaItems[j].SetOrderNothing();
+                            this.pizzaItems[j].Hide();
                         }
-                        
-                        landing.DeliverPizza(nextPizza.ActualPizza());
                         break;
                     }
                 }
@@ -103,8 +107,9 @@ public class ShipSupplier : MonoBehaviour
 
     private void Start()
     {
-        foreach (var item in this.PizzaItems)
+        foreach (var item in this.pizzaItems)
         {
+            Debug.Log($"Hide HUD Pizza Item: {item.name}");
             item.Hide();
         }
     }

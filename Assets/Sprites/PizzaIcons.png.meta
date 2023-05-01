@@ -200,6 +200,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: PizzaIcons_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6ce9e0bf21bf0c4d9558b2da4ecd0fc
+      internalID: -369524109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -211,6 +232,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      PizzaIcons_4: -369524109
       PizzaIcons_2: 2001106084
       PizzaIcons_0: 1421664259
       PizzaIcons_3: -1245641472

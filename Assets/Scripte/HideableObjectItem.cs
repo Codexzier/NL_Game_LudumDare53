@@ -4,13 +4,19 @@ using UnityEngine.UI;
 public abstract class HideableObjectItem : MonoBehaviour
 {
     private SpriteRenderer _renderer;
-    private Image Icon;
+    protected Image Icon;
     private void Start()
     {
         this._renderer = this.gameObject.GetComponent<SpriteRenderer>();
         this.Icon = this.gameObject.GetComponent<Image>();
+        
+        this.StartExtended();
     }
 
+    protected virtual void StartExtended()
+    {
+    }
+    
     public void Show()
     {
         if(this._renderer != null) this._renderer.enabled = true;
